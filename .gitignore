@@ -1,0 +1,24 @@
+# Credentials
+.env
+*.env
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+venv/
+env/
+
+# Data files (don't commit actual data)
+*.xlsx
+*.xls
+*.csv
+data/
+
+# Logs
+logs/*.log
+
+# IDE
+.vscode/
+.idea/
+*.swp
