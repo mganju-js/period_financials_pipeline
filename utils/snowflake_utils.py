@@ -75,8 +75,11 @@ def load_stage_to_temp(conn, stage_file: str):
     """Load data from stage to temporary table."""
     cursor = conn.cursor()
     try:
+        # Build the column list (exclude audit columns from COPY)
+        data_columns = ", ".join(config.REQUIRED_COLUMNS)
+        
         copy_sql = f"""
-        COPY INTO {config.TEMP_TABLE}
+        COPY INTO {config.TEMP_TABLE} ({data_columns})
         FROM @{config.STAGE_NAME}/{stage_file}
         FILE_FORMAT = (TYPE = 'CSV' FIELD_OPTIONALLY_ENCLOSED_BY = '"' SKIP_HEADER = 1)
         ON_ERROR = 'ABORT_STATEMENT'
@@ -101,6 +104,16 @@ def merge_temp_to_target(conn, source_filename: str):
         f"target.{col} = source.{col}" for col in config.FINANCIAL_COLUMNS
     ])
     
+    # Build condition to check if ANY value has changed
+    # This prevents updating unchanged rows
+    value_changed_conditions = " OR ".join([
+        f"target.{col} != source.{col} OR (target.{col} IS NULL AND source.{col} IS NOT NULL) OR (target.{col} IS NOT NULL AND source.{col} IS NULL)"
+        for col in config.FINANCIAL_COLUMNS
+    ])
+    
+    # Also check if OPENED changed
+    value_changed_conditions += " OR target.OPENED != source.OPENED OR (target.OPENED IS NULL AND source.OPENED IS NOT NULL) OR (target.OPENED IS NOT NULL AND source.OPENED IS NULL)"
+    
     # Build INSERT columns and values (including audit columns)
     all_cols = config.REQUIRED_COLUMNS
     insert_cols = ", ".join(all_cols + ['created_at', 'updated_at'])
@@ -116,7 +129,7 @@ def merge_temp_to_target(conn, source_filename: str):
     ON target.YEAR = source.YEAR 
        AND target.PERIOD = source.PERIOD 
        AND target.STORE_LOCATION = source.STORE_LOCATION
-    WHEN MATCHED THEN 
+    WHEN MATCHED AND ({value_changed_conditions}) THEN 
       UPDATE SET 
         {update_set_clause},
         target.OPENED = source.OPENED,

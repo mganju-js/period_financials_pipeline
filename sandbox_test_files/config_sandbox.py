@@ -3,13 +3,13 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-# Snowflake Configuration
+# Snowflake Configuration - SANDBOX
 SNOWFLAKE_CONFIG = {
     'account': os.getenv('SNOWFLAKE_ACCOUNT'),
     'user': os.getenv('SNOWFLAKE_USER'),
     'warehouse': os.getenv('SNOWFLAKE_WAREHOUSE'),
-    'database': os.getenv('SNOWFLAKE_DATABASE'),
-    'schema': os.getenv('SNOWFLAKE_SCHEMA'),
+    'database': 'DB_SANDBOX',  # Changed to sandbox
+    'schema': 'UPLOADS',  # Changed to uploads
     'role': os.getenv('SNOWFLAKE_ROLE'),
     'authenticator': os.getenv('SNOWFLAKE_AUTHENTICATOR', 'externalbrowser')
 }
@@ -21,13 +21,13 @@ else:
     SNOWFLAKE_CONFIG['password'] = os.getenv('SNOWFLAKE_PASSWORD')
 
 # These need to be module-level variables too
-SNOWFLAKE_DATABASE = os.getenv('SNOWFLAKE_DATABASE')
-SNOWFLAKE_SCHEMA = os.getenv('SNOWFLAKE_SCHEMA')
+SNOWFLAKE_DATABASE = 'DB_SANDBOX'
+SNOWFLAKE_SCHEMA = 'UPLOADS'
 
-# Table Configuration
-TARGET_TABLE = 'RAW_STORE_FINANCIALS'
-TEMP_TABLE = 'RAW_STORE_FINANCIALS_TEMP'
-STAGE_NAME = 'FINANCIALS_STAGE'
+# Table Configuration - TEST TABLE
+TARGET_TABLE = 'RAW_STORE_FINANCIALS_TEST'
+TEMP_TABLE = 'RAW_STORE_FINANCIALS_TEST_TEMP'
+STAGE_NAME = 'FINANCIALS_STAGE_TEST'
 
 # Required Columns - in exact order from your table
 REQUIRED_COLUMNS = [
