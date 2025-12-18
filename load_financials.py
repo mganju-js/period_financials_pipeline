@@ -131,7 +131,7 @@ def main(excel_file: str):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Load store financials to Snowflake')
-    parser.add_argument('--file', required=True, help='Path to Excel file')
+    parser.add_argument('--file', required=True, help='Path to Excel (.xlsx, .xls) or CSV file')
     
     args = parser.parse_args()
     
